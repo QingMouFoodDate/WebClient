@@ -51,22 +51,20 @@ flowchart LR
 
 ## 三、 推荐前端工程架构
 
-目录结构遵循组件化解耦标准，除根目录核心配置文件外，子目录仅展示文件夹层级：
-
 ```text
 WebClient/
-├── README.md
-├── package.json
-├── vite.config.ts
-├── tsconfig.json
-├── index.html
-└── src/
-    ├── api/
-    ├── types/
-    ├── components/
-    ├── services/
-    ├── hooks/
-    └── assets/
+├── README.md                      # 项目说明文档与前端开发指引
+├── package.json                   # 前端工程依赖声明与运行脚本
+├── vite.config.ts                 # 构建配置与开发服务器代理
+├── tsconfig.json                  # TypeScript 编译选项配置
+├── index.html                     # 单页应用 HTML 入口模版
+└── src/                           # 核心源码目录
+    ├── api/                       # 接口调用层与网络请求封装
+    ├── types/                     # 业务数据结构强类型定义
+    ├── components/                # 界面交互组件与状态卡片
+    ├── services/                  # 浏览器本地会话与硬件处理服务
+    ├── hooks/                     # 组合式状态逻辑与通用钩子
+    └── assets/                    # 静态样式、图标与多媒体资源
 ```
 
 ---
