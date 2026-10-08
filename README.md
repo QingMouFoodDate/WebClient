@@ -74,10 +74,11 @@ flowchart LR
 
 前端提供原图视觉空间与结构化卡片两大呈现维度：
 
-1. **原图覆层视图**：按比例贴合模型输出的检测框，缩放时保持坐标映射稳定，展示置信度标签；
-2. **结构化卡片视图**：独立呈现双维度状态枚举，不单依赖颜色传递信息：
-   - **包装标示状态**：在期（`WITHIN_MARKED_PERIOD`）、临期（`NEAR_EXPIRY`）、超期（`PAST_MARKED_PERIOD`）、无法判定（`UNDETERMINED`）；
-   - **证据复核状态**：证据完备（`EVIDENCE_COMPLETE`）、信息缺失（`INFORMATION_MISSING`）、证据冲突（`EVIDENCE_CONFLICT`）、低置信度（`LOW_CONFIDENCE`）。
+| 呈现维度 | 视图形式 | 核心展示内容与枚举项 |
+| :--- | :--- | :--- |
+| **空间坐标维度** | 原图覆层视图 | 按比例贴合检测边界框，缩放时保持坐标映射稳定，动态标注标签与置信度 |
+| **包装标示状态** | 结构化卡片视图 | 在期（`WITHIN_MARKED_PERIOD`）、临期（`NEAR_EXPIRY`）、超期（`PAST_MARKED_PERIOD`）、无法判定（`UNDETERMINED`） |
+| **证据复核状态** | 独立指引卡片 | 证据完备（`EVIDENCE_COMPLETE`）、信息缺失（`INFORMATION_MISSING`）、证据冲突（`EVIDENCE_CONFLICT`）、低置信度（`LOW_CONFIDENCE`） |
 
 ---
 
@@ -129,7 +130,10 @@ WebClient/                         # Web 客户端主仓库
 
 ## 八、权威依据与参考文档
 
-- **系统设计与规划**：[ProjectPRD/REQUIREMENTS.md](../ProjectPRD/REQUIREMENTS.md) · [ProjectPRD/ARCHITECTURE.md](../ProjectPRD/ARCHITECTURE.md) · [ProjectPRD/ROADMAP.md](../ProjectPRD/ROADMAP.md)
-- **跨仓技术契约**：[contracts/API.md](../ProjectPRD/contracts/API.md) · [contracts/DATA.md](../ProjectPRD/contracts/DATA.md) · [contracts/openapi.json](../ProjectPRD/contracts/openapi.json)
-- **规则与决策记录**：[contracts/DATE_RULES.md](../ProjectPRD/contracts/DATE_RULES.md) · [decisions/ADR-001-REPOSITORY_BOUNDARIES.md](../ProjectPRD/decisions/ADR-001-REPOSITORY_BOUNDARIES.md)
-- **工程与质量规范**：[standards/ENGINEERING.md](../ProjectPRD/standards/ENGINEERING.md)
+| 规范维度 | 事实源契约 | 核心约束说明 |
+| :--- | :--- | :--- |
+| **系统设计与规划** | [需求规格](../ProjectPRD/需求规格.md) · [系统架构](../ProjectPRD/系统架构.md) · [开发路线](../ProjectPRD/开发路线.md) | 确立系统功能边界、8 仓架构分层与 M0 迭代里程碑 |
+| **跨仓技术契约** | [在线接口契约](../ProjectPRD/contracts/在线接口契约.md) · [核心数据模型](../ProjectPRD/contracts/核心数据模型.md) · [openapi.json](../ProjectPRD/contracts/openapi.json) | 统一会话编排、REST 接口端点定义与 Observation/Evidence 数据模型 |
+| **规则与决策记录** | [日期推导规则](../ProjectPRD/contracts/日期推导规则.md) | 包装标示状态法定决策逻辑与 36 项测试向量基准 |
+| **工程与质量规范** | [工程协作指南](../ProjectPRD/standards/工程协作指南.md) | 跨仓协作规范、分支流转与代码提交规约 |
+
