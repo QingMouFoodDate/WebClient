@@ -84,12 +84,23 @@ flowchart LR
 
 ## 五、会话状态与错误处理
 
-前端维护明确的状态转换流，异常时提供清晰的下一步指引：
+前端会话状态流转链路如下：
 
-```text
-IDLE -> CREATING_SESSION -> UPLOADING -> PROCESSING -> RESULT_READY
-请求失败 -> FAILED (展示错误原因与重试入口)
+```mermaid
+stateDiagram-v2
+    [*] --> IDLE
+    IDLE --> CREATING_SESSION: 选择图片发起会话
+    CREATING_SESSION --> UPLOADING: 凭据初始化完成
+    UPLOADING --> PROCESSING: 图像幂等上传完成
+    PROCESSING --> RESULT_READY: 服务端推理与推导就绪
+    RESULT_READY --> [*]
+
+    CREATING_SESSION --> FAILED: 鉴权失败或网络超时
+    UPLOADING --> FAILED: 文件校验失败或传输中断
+    PROCESSING --> FAILED: 推理服务异常或处理超时
+    FAILED --> IDLE: 点击重试重新开始
 ```
+
 
 - 超时或推理失败明确提示服务不可用，严禁将基础设施失败伪装为“无法判定”；
 - 会话凭据（`session_token`）在会话生命周期中安全持有，不写入日志，不作 URL 明文分享。
