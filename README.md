@@ -128,13 +128,15 @@ WebClient/                         # Web 客户端主仓库
 
 ---
 
-## 八、权威依据与参考文档
+## 八、相关文档
 
-| 规范维度 | 事实源契约 | 核心约束说明 |
-| :--- | :--- | :--- |
-| **系统设计与规划** | [需求规格](../ProjectPRD/需求规格.md) · [系统架构](../ProjectPRD/系统架构.md) · [开发路线](../ProjectPRD/开发路线.md) | 确立系统功能边界、8 仓架构分层与 M0 迭代里程碑 |
-| **跨仓技术契约** | [contracts/API.md](../ProjectPRD/contracts/API.md) · [contracts/DATA.md](../ProjectPRD/contracts/DATA.md) · [openapi.json](../ProjectPRD/contracts/openapi.json) | 统一会话编排、REST 接口端点定义与 Observation/Evidence 数据模型 |
+- [需求规格](../ProjectPRD/需求规格.md)
+- [系统架构](../ProjectPRD/系统架构.md)
+- [开发路线](../ProjectPRD/开发路线.md)
+- [API 接口契约](../ProjectPRD/contracts/API.md)
+- [数据模型](../ProjectPRD/contracts/DATA.md)
+- [日期推导规则](../ProjectPRD/contracts/日期推导规则.md)
+- [工程协作指南](../ProjectPRD/standards/工程协作指南.md)
+- [数据质量规范](../ProjectPRD/standards/数据质量规范.md)
 
-| **规则与决策记录** | [日期推导规则](../ProjectPRD/contracts/日期推导规则.md) | 包装标示状态法定决策逻辑与 36 项测试向量基准 |
-| **工程与质量规范** | [工程协作指南](../ProjectPRD/standards/工程协作指南.md) | 跨仓协作规范、分支流转与代码提交规约 |
 
