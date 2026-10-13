@@ -2,7 +2,7 @@
 
 > 面向消费者、商超和仓储场景的通用 Web 基础客户端与核心原型系统
 >
-> **工程状态**：交互原型设计就绪 · M0 单图主链路验证中 · 统一接入 InferPlatform 业务网关
+> **工程状态**：M0 单图主链路待实现 · Web 优先实施
 
 WebClient 定义跨端共享的在线识别、结果查看、证据展示与人工纠偏基础能力，作为大创项目核心验收成果与优先验证入口。通过 RESTful API 对接 InferPlatform 在线中枢，不直连底层数据库或模型文件。MobileClient 规划增强现场移动能力，WxClient 作为微信生态轻量通道。
 
@@ -10,7 +10,7 @@ WebClient 定义跨端共享的在线识别、结果查看、证据展示与人�
 
 ## 工程状态与阶段说明
 
-WebClient 是 M0 单图闭环的第一阶段优先客户端方向，主要维护 Web 原型的产品设计、交互流程与跨仓契约约束，优先拉通单图从上传到双重视图呈现的端到端闭环验证；多图追加比对与人工纠偏作为后续 C0 目标递进展开。
+WebClient 是 M0 优先实现的客户端，当前主要维护产品设计、交互流程与接口约定。首轮验证单图上传、识别和双重视图展示；多图比对与人工纠偏在后续 C0 阶段推进。MobileClient 与 WxClient 暂缓实现，不作为 M0 的前置依赖。
 
 ---
 
@@ -38,14 +38,16 @@ WebClient 作为通用基础端，与其他两端的分工协同如下：
 
 ```mermaid
 flowchart LR
-    A["选择或拍摄包装图像"] --> B["创建识别会话 (POST /sessions)"]
-    B --> C["上传单张包装图片 (POST /images)"]
-    C --> D["获取 Observation 与决策 Decision"]
+    A["选择或拍摄包装图像"] --> B["开始查验"]
+    B --> C["提交包装图片"]
+    C --> D["查看识别文字与日期证据"]
     D --> E["双重视图同步呈现"]
     E --> F{"是否需要复核"}
     F -->|信息完整| G["直接查看包装标示结论"]
     F -->|缺失或冲突| H["按提示针对性补拍或人工核对"]
 ```
+
+M0 每个会话只接收一张图片，补拍新图需新建会话；C0 再支持向原会话追加图片。
 
 ---
 
@@ -53,20 +55,22 @@ flowchart LR
 
 ### 1. M0 单图核心闭环
 
-- **会话与上传**：支持选择单张图片、获取临时凭据并完成幂等上传；
-- **原图画布覆层**：在原图上绘制日期检测边界框，动态映射标签与置信度；
-- **双维度结果卡片**：展示生产日期、保质期、到期日，并呈现标示状态与复核状态。
+- **会话与上传**：支持选择单张包装图片，提交后查看处理进度；
+- **原图画布覆层**：在原图上绘制日期检测边界框，展示标签、OCR 原文与检测/OCR 各自置信度；
+- **双维度结果卡片**：展示生产日期、保质期、到期日及证据来源，并独立呈现标示状态与复核状态。
 
 ### 2. C0 多图扩展
 
 - **多图流转时间线**：支持同一食品的正面、背面、顶底多图追加；
 - **跨图一致性比对**：展示不同图片提取的证据冲突；
-- **字段级人工纠偏**：通过 `correction.v1` 提交生产日期、保质期或储存条件修正并即时刷新决策。
+- **字段级人工纠偏**：通过 `correction.v1` 提交生产日期、到期日、保质期或储存条件修正并即时刷新决策。
+
+完整 C0 的 OCR 原文/bbox 修正及图像变体展示尚未定义在线契约，需评审后接入。
 
 ### 3. C1 至 C3 探索能力
 
 - **交互辅助增强**：拖拽上传、剪贴板粘贴与局部缩放对照；
-- **条码弱辅助**：条码扫码辅助查询通用保质期，作为弱证据，不覆盖包装印刷实测字符。
+- **条码弱辅助**：条码提供商品关联线索，不用通用保质期或数据库推测值代替当前包装上的标示信息。
 
 ---
 
@@ -76,15 +80,17 @@ flowchart LR
 
 | 呈现维度 | 视图形式 | 核心展示内容与枚举项 |
 | :--- | :--- | :--- |
-| **空间坐标维度** | 原图覆层视图 | 按比例贴合检测边界框，缩放时保持坐标映射稳定，动态标注标签与置信度 |
-| **包装标示状态** | 结构化卡片视图 | 在期（`WITHIN_MARKED_PERIOD`）、临期（`NEAR_EXPIRY`）、超期（`PAST_MARKED_PERIOD`）、无法判定（`UNDETERMINED`） |
+| **空间坐标维度** | 原图覆层视图 | 按比例贴合检测边界框，缩放时保持坐标映射稳定，展示标签、OCR 原文及检测/OCR 各自置信度 |
+| **包装标示状态** | 结构化卡片视图 | 结合日期字段与证据来源展示在期（`WITHIN_MARKED_PERIOD`）、临期（`NEAR_EXPIRY`）、超期（`PAST_MARKED_PERIOD`）、无法判定（`UNDETERMINED`） |
 | **证据复核状态** | 独立指引卡片 | 证据完备（`EVIDENCE_COMPLETE`）、信息缺失（`INFORMATION_MISSING`）、证据冲突（`EVIDENCE_CONFLICT`）、低置信度（`LOW_CONFIDENCE`） |
+
+期限状态与复核状态独立展示；信息缺失不等于超期。
 
 ---
 
 ## 五、会话状态与错误处理
 
-前端会话状态流转链路如下：
+下图为客户端本地交互状态，服务端会话状态以数据契约为准：
 
 ```mermaid
 stateDiagram-v2
@@ -98,11 +104,11 @@ stateDiagram-v2
     CREATING_SESSION --> FAILED: 鉴权失败或网络超时
     UPLOADING --> FAILED: 文件校验失败或传输中断
     PROCESSING --> FAILED: 推理服务异常或处理超时
-    FAILED --> IDLE: 点击重试重新开始
+    FAILED --> IDLE: 核对原结果后选择重试
 ```
 
 
-- 超时或推理失败明确提示服务不可用，严禁将基础设施失败伪装为“无法判定”；
+- 上传或处理超时先查询已有会话结果，创建请求超时则复用原键获取原结果；技术失败单独提示，不作为“无法判定”的业务结论；
 - 会话凭据（`session_token`）在会话生命周期中安全持有，不写入日志，不作 URL 明文分享。
 
 ---
@@ -113,10 +119,12 @@ stateDiagram-v2
 
 | 阶段 | HTTP 方法与路径 | 功能职责与交互行为 |
 | :--- | :--- | :--- |
-| **M0** | `POST /api/v1/sessions` | 初始化识别会话，获取短期透明凭据 `session_token` |
+| **M0** | `POST /api/v1/sessions` | 初始化识别会话，获取短期不透明凭据 `session_token` |
 | **M0** | `POST /api/v1/sessions/{session_id}/images` | 携带 `Idempotency-Key` 上传单张图片并获取处理结果 |
 | **M0** | `GET /api/v1/sessions/{session_id}` | 获取完整版本化 Observation、Evidence 与 Decision DTO |
-| **C0** | `POST /api/v1/sessions/{session_id}/correction` | 提交字段级人工修正（限日期、保质期及储存条件四类字段） |
+| **C0** | `POST /api/v1/sessions/{session_id}/correction` | 提交字段级人工修正（`mfg_date`、`exp_date`、`shelf_life`、`storage_condition`） |
+
+创建、上传和纠偏均携带 `Idempotency-Key`，同一请求重试复用原键和原内容，换图或改值使用新键。后续查询、上传和纠偏使用短期不透明 `session_token` 作为 Bearer 凭据，并校验会话与图片归属。GET 返回完整结果，不返回令牌；凭据遗失时需新建会话。
 
 ---
 
@@ -141,13 +149,13 @@ WebClient/                         # Web 客户端主仓库
 
 ## 八、相关文档
 
-- [需求规格](../ProjectPRD/需求规格.md)
-- [系统架构](../ProjectPRD/系统架构.md)
-- [开发路线](../ProjectPRD/开发路线.md)
-- [API 接口契约](../ProjectPRD/contracts/API.md)
-- [数据模型](../ProjectPRD/contracts/DATA.md)
-- [日期推导规则](../ProjectPRD/contracts/日期推导规则.md)
-- [工程协作指南](../ProjectPRD/standards/工程协作指南.md)
-- [数据质量规范](../ProjectPRD/standards/数据质量规范.md)
+- [需求规格](https://github.com/QingMouFoodDate/ProjectPRD/blob/main/需求规格.md)
+- [系统架构](https://github.com/QingMouFoodDate/ProjectPRD/blob/main/系统架构.md)
+- [开发路线](https://github.com/QingMouFoodDate/ProjectPRD/blob/main/开发路线.md)
+- [API 接口契约](https://github.com/QingMouFoodDate/ProjectPRD/blob/main/contracts/API.md)
+- [数据模型](https://github.com/QingMouFoodDate/ProjectPRD/blob/main/contracts/DATA.md)
+- [日期推导规则](https://github.com/QingMouFoodDate/ProjectPRD/blob/main/contracts/日期推导规则.md)
+- [工程协作指南](https://github.com/QingMouFoodDate/ProjectPRD/blob/main/standards/工程协作指南.md)
+- [数据质量规范](https://github.com/QingMouFoodDate/ProjectPRD/blob/main/standards/数据质量规范.md)
 
 
