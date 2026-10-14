@@ -84,7 +84,7 @@ M0 每个会话只接收一张图片，补拍新图需新建会话；C0 再支�
 | **包装标示状态** | 结构化卡片视图 | 结合日期字段与证据来源展示在期（`WITHIN_MARKED_PERIOD`）、临期（`NEAR_EXPIRY`）、超期（`PAST_MARKED_PERIOD`）、无法判定（`UNDETERMINED`） |
 | **证据复核状态** | 独立指引卡片 | 证据完备（`EVIDENCE_COMPLETE`）、信息缺失（`INFORMATION_MISSING`）、证据冲突（`EVIDENCE_CONFLICT`）、低置信度（`LOW_CONFIDENCE`） |
 
-期限状态与复核状态独立展示；信息缺失不等于超期。
+期限状态与复核状态独立展示；信息缺失不等于超期。可靠直接到期日可单独比较期限，缺少生产日期不自动阻断在期展示。M0 固定天数临期默认候选为 30 天，可按服务端配置调整，不能当作法定标准；起算依据不足或日期存在疑问时显示来源与复核指引，不由前端猜值。
 
 ---
 
@@ -126,6 +126,8 @@ stateDiagram-v2
 
 创建、上传和纠偏均携带 `Idempotency-Key`，同一请求重试复用原键和原内容，换图或改值使用新键。后续查询、上传和纠偏使用短期不透明 `session_token` 作为 Bearer 凭据，并校验会话与图片归属。GET 返回完整结果，不返回令牌；凭据遗失时需新建会话。
 
+后续接入以 API、DATA 与 Schema 共同升级的 decision.v2 为准，保留 calculation_profile_id 对计算依据的引用，不混用 v1/v2 载荷。研究候选先判断结果可靠性，再评估重试或补拍是否值得；页面呈现明确建议，合法复核结果与技术故障分别提示。
+
 ---
 
 ## 七、提议工程目录结构
@@ -157,5 +159,6 @@ WebClient/                         # Web 客户端主仓库
 - [日期推导规则](https://github.com/QingMouFoodDate/ProjectPRD/blob/main/contracts/日期推导规则.md)
 - [工程协作指南](https://github.com/QingMouFoodDate/ProjectPRD/blob/main/standards/工程协作指南.md)
 - [数据质量规范](https://github.com/QingMouFoodDate/ProjectPRD/blob/main/standards/数据质量规范.md)
+- [研究现状](https://github.com/QingMouFoodDate/ProjectPRD/blob/main/references/研究现状.md)
 
 
