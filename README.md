@@ -122,7 +122,7 @@ stateDiagram-v2
 | **M0** | `POST /api/v1/sessions` | 初始化识别会话，获取短期不透明凭据 `session_token` |
 | **M0** | `POST /api/v1/sessions/{session_id}/images` | 携带 `Idempotency-Key` 上传单张图片并获取处理结果 |
 | **M0** | `GET /api/v1/sessions/{session_id}` | 获取完整版本化 Observation、Evidence 与 Decision DTO |
-| **C0** | `POST /api/v1/sessions/{session_id}/correction` | 提交字段级人工修正（`mfg_date`、`exp_date`、`shelf_life`、`storage_condition`） |
+| **C0** | `POST /api/v1/sessions/{session_id}/correction` | 提交字段级人工修正（四类语义字段及 `start_mode` 起算模式纠偏） |
 
 创建、上传和纠偏均携带 `Idempotency-Key`，同一请求重试复用原键和原内容，换图或改值使用新键。后续查询、上传和纠偏使用短期不透明 `session_token` 作为 Bearer 凭据，并校验会话与图片归属。GET 返回完整结果，不返回令牌；凭据遗失时需新建会话。
 
